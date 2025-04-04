@@ -2,7 +2,6 @@ package fanout
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"pajarit-timeline-worker/domain"
 )
@@ -20,17 +19,23 @@ func NewFanOutTimeline(timelineRepository domain.TimelineRepository, followUpRep
 }
 
 func (e *FanOutTimeline) Exec(ctx context.Context, event PostCreatedEvent) error {
-
-	followUp, err := e.followUpRepository.Get(ctx, event.AuthorId)
+	post, err := mapEventToPost(event)
 	if err != nil {
 		log.Println(err)
+		return err
 	}
 
-	// 2. insertar como primer registro el evento
+	followUp, err := e.followUpRepository.Get(ctx, post.AuthorId)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	for _, follow := range followUp {
-		// Go routine para ejecutar en paralelo todas las actualizaciones
-		// Guarda con el fallo de una
-		fmt.Println(follow)
+		err := e.timelineRepository.Save(ctx, post, follow.FollowerId)
+		log.Println(err)
+
+		// TODO - guarda que puede fallar y hay que ver cómo hacemos con eso.
 	}
 
 	// 2.1 garantizar el orden

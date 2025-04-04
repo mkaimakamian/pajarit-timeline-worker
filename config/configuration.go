@@ -15,7 +15,7 @@ func LoadConfiguration() *Configuration {
 		ServerPort:          8081,
 		DBMaxConnection:     10,
 		DBMaxIdleConnection: 5,
-		DBPath:              "pajarit.db",
+		DBPath:              "C:\\Users\\Kokumo\\Documents\\Uala\\pajarit-feed-service\\pajarit.db",
 		EventServer:         "nats://localhost",
 		EventServerPort:     4222,
 	}

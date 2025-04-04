@@ -21,11 +21,11 @@ func BuildDependencies(cfg *Configuration) (*Dependencies, error) {
 		return nil, err
 	}
 
-	// postRepository := infrastructure.NewSqlitePostRepository(dbClient)
+	timelineRepository := infrastructure.NewSqliteTimelineRepository(dbClient)
 	folloUpRepository := infrastructure.NewSqliteFollowUpRepository(dbClient)
 
 	deps := &Dependencies{
-		TimelineRepository: nil,
+		TimelineRepository: timelineRepository,
 		FollowUpRepository: folloUpRepository,
 	}
 
