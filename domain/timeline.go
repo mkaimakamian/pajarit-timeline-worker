@@ -3,7 +3,7 @@ package domain
 import "context"
 
 type TimelineRepository interface {
-	Get(ctx context.Context, userId string) (*Timeline, error)
+	Save(ctx context.Context, post *Post, followerId string) error
 }
 
 type Timeline struct {

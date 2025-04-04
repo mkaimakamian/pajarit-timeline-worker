@@ -1,17 +1,12 @@
 package domain
 
 import (
-	"context"
 	"fmt"
 	"time"
 )
 
 const MAX_ALLOWED_LENGTH = 280
 const ZERO_LENGTH = 0 // TODO - mover esta constante porque se usa en otras entidades
-
-type PostRepository interface {
-	Save(ctx context.Context, post *Post) (*Post, error)
-}
 
 type Post struct {
 	Id        string
@@ -20,10 +15,11 @@ type Post struct {
 	CreatedAt time.Time
 }
 
-func NewPost(authorId, content string) (*Post, error) {
+func NewPost(id, authorId, content string, createdAt time.Time) (*Post, error) {
 
-	// Podemos desacoplar la validación, pero me resultó más
-	// práctico tratar la entidad como un value object
+	// En principio, la validación en esta instancia del flujo es opcional ya que
+	// no debería llegarse a este punto un mensaje incompleto; sin embargo, no deja
+	// de ser una buena práctica.
 
 	if len(authorId) == ZERO_LENGTH {
 		return nil, fmt.Errorf("author id can't be %d length", ZERO_LENGTH)
@@ -37,5 +33,5 @@ func NewPost(authorId, content string) (*Post, error) {
 		return nil, fmt.Errorf("post can't exceed %d characters", MAX_ALLOWED_LENGTH)
 	}
 
-	return &Post{AuthorId: authorId, Content: content}, nil
+	return &Post{Id: id, AuthorId: authorId, Content: content, CreatedAt: createdAt}, nil
 }
