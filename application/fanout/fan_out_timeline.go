@@ -41,20 +41,25 @@ func (e *FanOutTimeline) updateFollowersTimeline(ctx context.Context, followUp [
 	// Author's post must be added to its own timeline!
 	followUp = append(followUp, &domain.FollowUp{FollowerId: post.AuthorId})
 
-	var wg sync.WaitGroup
+	var mu sync.Mutex
 
 	for _, follow := range followUp {
 		followerId := follow.FollowerId
 
-		wg.Add(1)
 		go func() {
-			defer wg.Done()
+
+			// Es un poco contradictorio el uso de go routines con la única función
+			// lockeada, pero es sencillamente porque SQLite no soporta concurrencia
+			// y la idea era mostrar que el fanout se puede paralelizar (con una base adecuada)
+			mu.Lock()
 			err := e.timelineRepository.Save(ctx, post, followerId)
+			mu.Unlock()
 			log.Println(err)
 
-			// TODO - falta implementar una política de reintento ante errores,
-			// posiblemente basada en retornar la tarea a la cola de eventos
-			// para su posterior tratamiento (según el tipo de error)
+			// TODO - falta implementar una política de reintento ante errores.
+			// Se podría generar un evento del tipo timetable.update.failed y
+			// enviar cada update fallido al broker de eventos para un futuro reintento.
 		}()
 	}
+
 }
