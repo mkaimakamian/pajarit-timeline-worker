@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"pajarit-timeline-worker/domain"
+	"sync"
 )
 
 type FanOutTimeline struct {
@@ -31,14 +32,29 @@ func (e *FanOutTimeline) Exec(ctx context.Context, event PostCreatedEvent) error
 		return err
 	}
 
-	for _, follow := range followUp {
-		err := e.timelineRepository.Save(ctx, post, follow.FollowerId)
-		log.Println(err)
-
-		// TODO - guarda que puede fallar y hay que ver cómo hacemos con eso.
-	}
-
-	// 2.1 garantizar el orden
+	e.updateFollowersTimeline(ctx, followUp, post)
 
 	return nil
+}
+
+func (e *FanOutTimeline) updateFollowersTimeline(ctx context.Context, followUp []*domain.FollowUp, post *domain.Post) {
+	// Author's post must be added to its own timeline!
+	followUp = append(followUp, &domain.FollowUp{FollowerId: post.AuthorId})
+
+	var wg sync.WaitGroup
+
+	for _, follow := range followUp {
+		followerId := follow.FollowerId
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			err := e.timelineRepository.Save(ctx, post, followerId)
+			log.Println(err)
+
+			// TODO - falta implementar una política de reintento ante errores,
+			// posiblemente basada en retornar la tarea a la cola de eventos
+			// para su posterior tratamiento (según el tipo de error)
+		}()
+	}
 }

@@ -18,7 +18,7 @@ type Post struct {
 func NewPost(id, authorId, content string, createdAt time.Time) (*Post, error) {
 
 	// En principio, la validación en esta instancia del flujo es opcional ya que
-	// no debería llegarse a este punto un mensaje incompleto; sin embargo, no deja
+	// no deberían llegar mensajes incompletos; sin embargo, no deja
 	// de ser una buena práctica.
 
 	if len(authorId) == ZERO_LENGTH {
