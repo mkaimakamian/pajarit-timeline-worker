@@ -9,7 +9,7 @@ import (
 
 func StartServer(cfg *config.Configuration, deps *config.Dependencies) error {
 
-	natsUrl := fmt.Sprintf("%s:%d", cfg.EventServer, cfg.EventServerPort)
+	natsUrl := fmt.Sprintf("%s:%d", cfg.Event.Server, cfg.Event.Port)
 	natsConnection, err := nats.Connect(natsUrl)
 	if err != nil {
 		return err

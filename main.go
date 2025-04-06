@@ -8,7 +8,10 @@ import (
 
 func main() {
 	println("loading configuration")
-	cfg := config.LoadConfiguration()
+	cfg, err := config.LoadConfiguration()
+	if err != nil {
+		log.Fatalln("can't load configuration")
+	}
 
 	println("loading dependencies")
 	deps, err := config.BuildDependencies(cfg)
@@ -21,5 +24,5 @@ func main() {
 		log.Fatalln("can't start server %v", err)
 	}
 
-	println("server started in port %d", cfg.ServerPort)
+	println("server started in port %d", cfg.Server.Port)
 }
