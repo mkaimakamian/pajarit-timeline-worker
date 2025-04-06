@@ -33,14 +33,14 @@ func BuildDependencies(cfg *Configuration) (*Dependencies, error) {
 }
 
 func dbClient(cfg *Configuration) (*sql.DB, error) {
-	client, err := sql.Open("sqlite", cfg.DBPath)
+	client, err := sql.Open("sqlite", cfg.Database.Path)
 	if err != nil {
 		return nil, fmt.Errorf("db can't be opened: %v", err)
 	}
 
 	// Valores arbitrarios para el challenge
-	client.SetMaxOpenConns(cfg.DBMaxConnection)
-	client.SetMaxIdleConns(cfg.DBMaxIdleConnection)
+	client.SetMaxOpenConns(cfg.Database.MaxConnection)
+	client.SetMaxIdleConns(cfg.Database.MaxIdleConnection)
 
 	if err = client.Ping(); err != nil {
 		return nil, fmt.Errorf("db is not responding: %v", err)
